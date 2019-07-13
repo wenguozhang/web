@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wgz.dao.TaskDao" >
+
+  <select id="getTask" resultType="com.wgz.pojo.TaskInfo">
+    SELECT id, task_id taskId, task_name taskName FROM task_info
+  </select>
+  
+  <select id="getTaskById" resultType="com.wgz.pojo.TaskInfo" parameterType="java.lang.Integer" >
+    SELECT * FROM task_info where id = #{id}
+  </select>
+ 
+</mapper>

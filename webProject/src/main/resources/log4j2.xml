@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO" monitorInterval="600">
+    <properties>
+		<property name="BASE">/usr/local</property>
+		<property name="LOG_HOME">${BASE}/logs/</property>
+		<property name="ALL_LOG">webProject</property>
+    </properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+        	<!-- 输出日志的格式 -->
+			<PatternLayout charset="UTF-8">
+				<pattern>
+					%d{yyyy-MM-dd HH:mm:ss SSS} %-5level [%t] %F %M(%L) - [tradeNo:%X{tradeNo}] [intId:%X{intId}] %msg%n
+				</pattern>
+			</PatternLayout>
+        </Console>
+        
+        <RollingRandomAccessFile name="all_log"
+        	fileName="${LOG_HOME}/${ALL_LOG}.log"
+			filePattern="${LOG_HOME}/$${date:yyyy-MM-dd}/${ALL_LOG}.%d{yyyy-MM-dd.HH}-%i.log.gz">
+            <PatternLayout charset="UTF-8">
+				<pattern>
+					%d{yyyy-MM-dd HH:mm:ss SSS} %-5level [%t] %F %M(%L) - [tradeNo:%X{tradeNo}] [intId:%X{intId}] %msg%n
+				</pattern>
+			</PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" />
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingRandomAccessFile>
+    </Appenders>
+
+    <Loggers>
+        <logger name="org.springframework.core" level="info"/>
+        <logger name="org.springframework.beans" level="info"/>
+        <logger name="org.springframework.context" level="info"/>
+        <logger name="org.springframework.web" level="info"/>
+
+        <root level="info" includeLocation="true">
+            <appender-ref ref="Console"/>
+            <appender-ref ref="all_log"/>
+        </root>
+    </Loggers>
+</Configuration>
