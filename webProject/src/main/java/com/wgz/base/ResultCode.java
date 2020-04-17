@@ -1,5 +1,6 @@
 package com.wgz.base;
 
+
 /**
  * @Description:错误码
  * @author: wenguozhang 
@@ -40,4 +41,11 @@ public class ResultCode {
 	public static final ResultCode 未查到住宿周期编码 = new ResultCode("2002", "未查到住宿周期编码");
 	public static final ResultCode 查询住宿周期编码异常 = new ResultCode("2003", "查询住宿周期编码异常");
 	public static final ResultCode 非法日期字符串 = new ResultCode("2004", "非法日期字符串");
+	
+	public static final ResultCode 操作文件IO异常 = new ResultCode("0101", "操作文件IO异常");
+	public static final ResultCode 解析文件异常 = new ResultCode("0102", "解析文件异常");
+	public static final ResultCode 文件入库异常 = new ResultCode("0103", "文件入库异常");
+	public static final ResultCode ftp连接异常 = new ResultCode("0104", "ftp连接异常");
+	public static final ResultCode 获取文件异常 = new ResultCode("0105", "获取文件异常");
+	public static final ResultCode 参数异常 = new ResultCode("0106", "参数异常");
 }

@@ -14,24 +14,28 @@
     http://www.springframework.org/schema/aop/spring-aop.xsd">
     
     <!-- 自动扫描quick4j包 ,将带有注解的类 纳入spring容器管理 -->
-    <context:component-scan base-package="com.wgz"></context:component-scan>
+    <context:component-scan base-package="com.wgz,com.jobhandler"></context:component-scan>
     
     <!-- 引入配置文件 -->
 	<bean id="propertyConfigurer"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="fileEncoding" value="utf-8" />
 		<property name="locations">
 			<list>
 				<value>classpath:config.properties</value>
+				<value>classpath:redis.properties</value>
+				<value>classpath:job-executor.properties</value>
 			</list>
 		</property>
 	</bean>
 	
 	<!-- dataSource 配置 mysql -->
-	<bean id="dataSourceMysql" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
 		<!-- 基本属性 url、user、password -->
         <property name="url" value="${jdbc.url}"/>
         <property name="username" value="${jdbc.username}"/>
         <property name="password" value="${jdbc.password}"/>
+        <property name="driverClassName" value="${jdbc.driver}"/>
 
         <!-- 配置初始化大小、最小、最大 -->
         <property name="initialSize" value="${ds.initialSize}"/>
@@ -47,7 +51,7 @@
         <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
         <property name="minEvictableIdleTimeMillis" value="${ds.minEvictableIdleTimeMillis}"/>
 
-        <property name="validationQuery" value="SELECT 'x'"/>
+        <property name="validationQuery" value="SELECT 'x' FROM DUAL"/>
         <property name="testWhileIdle" value="true"/>
         <property name="testOnBorrow" value="false"/>
         <property name="testOnReturn" value="false"/>
@@ -68,8 +72,9 @@
 	
 	
 	<!-- mysql#spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->
-	<bean id="sqlSessionFactoryMysql" class="org.mybatis.spring.SqlSessionFactoryBean">
-		<property name="dataSource" ref="dataSourceMysql" />
+	<!-- <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"> -->
+	<bean id="sqlSessionFactory" class="com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
 		<!-- 自动扫描mapping.xml文件 -->
 		<property name="mapperLocations">
 			<list>
@@ -82,19 +87,19 @@
 	</bean>
 	
 	<!-- mysql-mybatis spring sqlSessionTemplate,使用时直接让spring注入即可 -->
-    <bean id="sqlSessionTemplateMysql" class="org.mybatis.spring.SqlSessionTemplate">
-        <constructor-arg index="0" ref="sqlSessionFactoryMysql"></constructor-arg>
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactory"></constructor-arg>
     </bean>
 
 	<!-- mysql-DAO接口所在包名，Spring会自动查找其下的类 -->
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<!-- <property name="basePackage" value="com.wgz.dao,com.baomidou.mybatisplus.samples.quickstart.mapper" /> -->
-		<property name="basePackage" value="com.wgz.dao" />
-		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryMysql"></property>
+		<property name="basePackage" value="com.wgz.dao,com.baomidou.mybatisplus.samples.quickstart.mapper" />
+		<!-- <property name="basePackage" value="com.wgz.dao" /> -->
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
 	</bean>
 	
 	<!-- 对dataSource 数据源进行事务管理 -->
-	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" p:dataSource-ref="dataSourceMysql" />
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" p:dataSource-ref="dataSource" />
 
 	<!-- 事务管理 通知 -->
 	<tx:advice id="txAdvice" transaction-manager="transactionManager">
@@ -122,7 +127,7 @@
 	<!-- 事务 aop 配置 -->
 	<aop:config>
 		<aop:pointcut id="serviceMethods"
-			expression="(execution(* com.wgz.service.*.*(..))) or (execution(* com.wgz.*.service.*.*(..)))" />
+			expression="(execution(* com.wgz.service..*.*(..)))" />
 		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceMethods" />
 	</aop:config>
 
@@ -133,5 +138,9 @@
     <aop:aspectj-autoproxy proxy-target-class="true"/>
     
     <import resource="applicationContext-task.xml"/>
+    <import resource="applicationContext-redis.xml"/>
+    
+    <!-- job -->
+    <import resource="applicationContext-job.xml"/>
 	
 </beans>

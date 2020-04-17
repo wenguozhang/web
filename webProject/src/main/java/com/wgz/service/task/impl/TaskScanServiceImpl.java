@@ -58,7 +58,7 @@ public class TaskScanServiceImpl implements TaskScanService{
 		List<TaskInfo> taskInfos = taskMapper.selectList(
 		        new QueryWrapper<TaskInfo>().eq("enable_flag", Constants.ENABLE_FLAG_1).lt("start_time", currentTime).ne("task_status", Constants.TASK_STATUS_PROCESS));
 		
-		for(TaskInfo taskInfo : taskInfos) {
+		taskInfos.forEach(taskInfo -> {
 			try {
 				//将此任务的状态置为执行中:PROCESS
 				taskInfo.setTaskStatus(Constants.TASK_STATUS_PROCESS);
@@ -72,7 +72,7 @@ public class TaskScanServiceImpl implements TaskScanService{
 			} catch(Exception e) {
 				log.error("执行任务task_id为"+taskInfo.getTaskId()+"异常:"+e.toString());
 			}
-		}
+		});
 	}
 	
 	
