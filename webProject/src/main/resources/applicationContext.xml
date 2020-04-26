@@ -14,7 +14,7 @@
     http://www.springframework.org/schema/aop/spring-aop.xsd">
     
     <!-- 自动扫描quick4j包 ,将带有注解的类 纳入spring容器管理 -->
-    <context:component-scan base-package="com.wgz,com.jobhandler"></context:component-scan>
+    <context:component-scan base-package="com.wgz"></context:component-scan>
     
     <!-- 引入配置文件 -->
 	<bean id="propertyConfigurer"
@@ -29,118 +29,15 @@
 		</property>
 	</bean>
 	
-	<!-- dataSource 配置 mysql -->
-	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
-		<!-- 基本属性 url、user、password -->
-        <property name="url" value="${jdbc.url}"/>
-        <property name="username" value="${jdbc.username}"/>
-        <property name="password" value="${jdbc.password}"/>
-        <property name="driverClassName" value="${jdbc.driver}"/>
-
-        <!-- 配置初始化大小、最小、最大 -->
-        <property name="initialSize" value="${ds.initialSize}"/>
-        <property name="minIdle" value="${ds.minIdle}"/>
-        <property name="maxActive" value="${ds.maxActive}"/>
-
-        <!-- 配置获取连接等待超时的时间 -->
-        <property name="maxWait" value="${ds.maxWait}"/>
-
-        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
-        <property name="timeBetweenEvictionRunsMillis" value="${ds.timeBetweenEvictionRunsMillis}"/>
-
-        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
-        <property name="minEvictableIdleTimeMillis" value="${ds.minEvictableIdleTimeMillis}"/>
-
-        <property name="validationQuery" value="SELECT 'x' FROM DUAL"/>
-        <property name="testWhileIdle" value="true"/>
-        <property name="testOnBorrow" value="false"/>
-        <property name="testOnReturn" value="false"/>
-
-        <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
-        <property name="poolPreparedStatements" value="false"/>
-        <property name="maxPoolPreparedStatementPerConnectionSize" value="20"/>
-		<!-- 超过时间限制是否回收 --> 
-        <property name="removeAbandoned" value="true" /> 
-        <!-- 超时时间；单位为秒。180秒=3分钟 --> 
-        <property name="removeAbandonedTimeout" value="1800" /> 
-        <!-- 关闭abanded连接时输出错误日志 --> 
-        <property name="logAbandoned" value="true" />
-        
-        <!-- 配置监控统计拦截的filters -->
-        <property name="filters" value="stat"/>
-	</bean>
-	
-	
-	<!-- mysql#spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->
-	<!-- <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"> -->
-	<bean id="sqlSessionFactory" class="com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean">
-		<property name="dataSource" ref="dataSource" />
-		<!-- 自动扫描mapping.xml文件 -->
-		<property name="mapperLocations">
-			<list>
-				<value>classpath:mappers/*.xml</value>
-			</list>
-		</property>
-		<property name="configLocation">
-			<value>classpath:mybatis-config.xml</value>
-		</property>
-	</bean>
-	
-	<!-- mysql-mybatis spring sqlSessionTemplate,使用时直接让spring注入即可 -->
-    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
-        <constructor-arg index="0" ref="sqlSessionFactory"></constructor-arg>
-    </bean>
-
-	<!-- mysql-DAO接口所在包名，Spring会自动查找其下的类 -->
-	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.wgz.dao,com.baomidou.mybatisplus.samples.quickstart.mapper" />
-		<!-- <property name="basePackage" value="com.wgz.dao" /> -->
-		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
-	</bean>
-	
-	<!-- 对dataSource 数据源进行事务管理 -->
-	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" p:dataSource-ref="dataSource" />
-
-	<!-- 事务管理 通知 -->
-	<tx:advice id="txAdvice" transaction-manager="transactionManager">
-		<tx:attributes>
-			<!-- 对insert,update,delete 开头的方法进行事务管理,只要有异常就回滚 -->
-			<tx:method name="insert*" propagation="REQUIRED"
-				rollback-for="java.lang.Throwable" />
-			<tx:method name="add*" propagation="REQUIRED"
-				rollback-for="java.lang.Throwable" />
-			<tx:method name="update*" propagation="REQUIRED"
-				rollback-for="java.lang.Throwable" />
-			<tx:method name="delete*" propagation="REQUIRED"
-				rollback-for="java.lang.Throwable" />
-			<tx:method name="clear*" propagation="REQUIRED"
-				rollback-for="java.lang.Throwable" />
-			<!-- select,count开头的方法,开启只读,提高数据库访问性能 -->
-			<tx:method name="select*" read-only="true" />
-			<tx:method name="find*" read-only="true" />
-			<tx:method name="count*" read-only="true" />
-			<!-- 对其他方法 使用默认的事务管理 -->
-			<tx:method name="*" read-only="false"/>
-		</tx:attributes>
-	</tx:advice>
-
-	<!-- 事务 aop 配置 -->
-	<aop:config>
-		<aop:pointcut id="serviceMethods"
-			expression="(execution(* com.wgz.service..*.*(..)))" />
-		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceMethods" />
-	</aop:config>
-
-	<!-- 启用对事务注解的支持 -->
-	<tx:annotation-driven transaction-manager="transactionManager" />
-	
-    <!-- 配置使Spring采用CGLIB代理 -->
-    <aop:aspectj-autoproxy proxy-target-class="true"/>
-    
     <import resource="applicationContext-task.xml"/>
     <import resource="applicationContext-redis.xml"/>
-    
     <!-- job -->
-    <import resource="applicationContext-job.xml"/>
+    <!-- <import resource="applicationContext-job.xml"/> -->
+    <!-- mq -->
+    <!-- <import resource="applicationContext-rabbitmq.xml"/> -->
+    <!-- 启动@aspectj的自动代理支持-->
+    <aop:aspectj-autoproxy expose-proxy="true"/>
+    <!-- 引入bean配置 -->
+    <import resource="applicationContext-bean.xml"/>
 	
 </beans>

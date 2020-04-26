@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop.xsd">
+					
+         <!-- 启动@aspectj的自动代理支持-->
+   		 <aop:aspectj-autoproxy expose-proxy="true"/>
+   		 
+		<bean id="helloWorldImpl1" class="com.wgz.aop.impl.HelloWorldImpl1" />
+        <bean id="helloWorldImpl2" class="com.wgz.aop.impl.HelloWorldImpl2" />
+        <bean id="timeHandler" class="com.wgz.aop.TimeHandler" />	
+        <bean id="logHandler" class="com.wgz.aop.LogHandler" />
+        <bean id="testAspect" class="com.wgz.aop.TestAspect" />
+         
+        
+	    <!-- <aop:config>
+	        <aop:aspect id="time" ref="timeHandler">
+	            <aop:pointcut id="addAllMethod" expression="execution(* com.wgz.aop.HelloWorld.*(..))" />
+	            <aop:before method="printTime" pointcut-ref="addAllMethod" />
+	            <aop:after method="printTime" pointcut-ref="addAllMethod" />
+	        </aop:aspect>
+	        
+	        <aop:aspect id="log" ref="logHandler" order="2">
+                <aop:pointcut id="printLog" expression="execution(* com.wgz.aop.HelloWorld.*(..))" />
+                <aop:before method="LogBefore" pointcut-ref="printLog" />
+                <aop:after method="LogAfter" pointcut-ref="printLog" />
+            </aop:aspect>
+	    </aop:config> -->
+
+</beans>

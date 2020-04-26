@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+      xsi:schemaLocation="http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://www.springframework.org/schema/rabbit
+     http://www.springframework.org/schema/rabbit/spring-rabbit.xsd">
+     
+     <!-- 引入配置文件 -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="fileEncoding" value="utf-8" />
+		<property name="locations">
+			<list>
+				<value>classpath:rabbit.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+     <!--配置connection-factory，指定连接rabbit server参数 -->
+	<rabbit:connection-factory id="connectionFactory" 
+   							virtual-host="${mq1.virtual-host}"
+                        	username="${mq.username}" 
+                        	password="${mq.password}" 
+                        	host="${mq.host}" 
+                        	port="${mq.port}" 
+                        	publisher-confirms="true" 
+                        	publisher-returns="true"/>
+                        	
+    <!--通过指定下面的admin信息，当前producer中的exchange和queue会在rabbitmq服务器上自动生成 -->
+	<rabbit:admin connection-factory="connectionFactory" />
+	
+	<rabbit:queue name="direct.test.queue" durable="true" auto-delete="false" exclusive="false"/>
+	
+    <!--定义rabbit template用于数据的接收和发送 -->                    	
+    <rabbit:template id="rabbitTemplate" 
+    	connection-factory="connectionFactory" 
+    	exchange="direct.test.exchange" queue="direct.test.queue"/> 
+    	
+	<!-- 定义queue direct类型-->
+	<rabbit:direct-exchange name="direct.test.exchange" durable="true" auto-delete="false">
+		<rabbit:bindings>
+			<rabbit:binding queue="direct.test.queue" key="direct.test.queue_key"/>
+		</rabbit:bindings>
+	</rabbit:direct-exchange>
+	
+	<bean id="myMessageListener" class="com.wgz.rabbitmq.spring.MyMessageListener" />
+	
+	<!-- 消费者监听器 -->
+    <rabbit:listener-container connection-factory="connectionFactory" acknowledge="auto">
+    	<rabbit:listener queues="direct.test.queue" ref="myMessageListener" />
+    </rabbit:listener-container>	
+    
+</beans>
