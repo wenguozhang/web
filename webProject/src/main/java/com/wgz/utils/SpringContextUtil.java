@@ -5,6 +5,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
+import com.wgz.quartz.HelloJob;
+
 /**
  * spring上下文对象
  * @author soulasuna
@@ -61,4 +63,5 @@ public class SpringContextUtil implements ApplicationContextAware {
 			throw new IllegalStateException("applicaitonContext未注入,请在applicationContext.xml中定义SpringContextHolder");
 		}
 	}
+	
 }
